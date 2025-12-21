@@ -11,6 +11,14 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var customPeopleText: String = ""
 
+    // Cached currency formatter for performance
+    private let currencyFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale.current
+        return formatter
+    }()
+
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -329,16 +337,28 @@ struct ContentView: View {
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
         }
     }
-
-    private var currencyFormatter: NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale.current
-        return formatter
-    }
 }
 
 struct GlassCard: ViewModifier {
+    // Static gradients for better performance
+    private static let fillGradient = LinearGradient(
+        colors: [
+            Color.white.opacity(0.2),
+            Color.white.opacity(0.05)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
+    private static let strokeGradient = LinearGradient(
+        colors: [
+            Color.white.opacity(0.3),
+            Color.white.opacity(0.1)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
     func body(content: Content) -> some View {
         content
             .background(
@@ -347,29 +367,10 @@ struct GlassCard: ViewModifier {
                         .fill(.ultraThinMaterial)
 
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.2),
-                                    Color.white.opacity(0.05)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Self.fillGradient)
 
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.3),
-                                    Color.white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
+                        .stroke(Self.strokeGradient, lineWidth: 1)
                 }
             )
             .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)

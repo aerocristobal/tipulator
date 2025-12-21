@@ -13,9 +13,12 @@ class TipCalculator: ObservableObject {
 
     @Published var billAmountText: String = "" {
         didSet {
+            cachedBillAmount = nil
             calculateTip()
         }
     }
+
+    private var cachedBillAmount: Double?
 
     @Published var selectedTipPercentage: Int = 18 {
         didSet {
@@ -79,8 +82,13 @@ class TipCalculator: ObservableObject {
     }
 
     private var billAmount: Double {
+        if let cached = cachedBillAmount {
+            return cached
+        }
         let cleanedText = billAmountText.replacingOccurrences(of: ",", with: "")
-        return Double(cleanedText) ?? 0.0
+        let value = Double(cleanedText) ?? 0.0
+        cachedBillAmount = value
+        return value
     }
 
     private var effectiveTipPercentage: Double {
@@ -89,6 +97,18 @@ class TipCalculator: ObservableObject {
 
     private func calculateTip() {
         let bill = billAmount
+
+        // Early return if bill is zero
+        guard bill > 0 else {
+            tipAmount = 0.0
+            totalAmount = 0.0
+            amountPerPerson = 0.0
+            palindromeAdjustment = 0.0
+            dollarRoundingAdjustment = 0.0
+            isPalindrome = false
+            return
+        }
+
         let tipPercentage = effectiveTipPercentage / 100.0
 
         var calculatedTip = bill * tipPercentage
@@ -97,7 +117,7 @@ class TipCalculator: ObservableObject {
         var totalPalindromeAdjustment = 0.0
         var totalDollarRoundingAdjustment = 0.0
 
-        if usePalindromeRounding && bill > 0 {
+        if usePalindromeRounding {
             let palindromeTotal = findNextPalindrome(from: calculatedTotal)
             totalPalindromeAdjustment = palindromeTotal - calculatedTotal
             calculatedTip += totalPalindromeAdjustment
@@ -105,14 +125,13 @@ class TipCalculator: ObservableObject {
             isPalindrome = true
         } else {
             isPalindrome = false
-        }
-
-        // Only apply dollar rounding if palindrome rounding is not enabled
-        if !usePalindromeRounding && dollarRoundingMode != .none && bill > 0 {
-            let roundedTotal = applyDollarRounding(to: calculatedTotal, mode: dollarRoundingMode)
-            totalDollarRoundingAdjustment = roundedTotal - calculatedTotal
-            calculatedTip += totalDollarRoundingAdjustment
-            calculatedTotal = roundedTotal
+            // Only apply dollar rounding if palindrome rounding is not enabled
+            if dollarRoundingMode != .none {
+                let roundedTotal = applyDollarRounding(to: calculatedTotal, mode: dollarRoundingMode)
+                totalDollarRoundingAdjustment = roundedTotal - calculatedTotal
+                calculatedTip += totalDollarRoundingAdjustment
+                calculatedTotal = roundedTotal
+            }
         }
 
         palindromeAdjustment = totalPalindromeAdjustment
@@ -133,23 +152,33 @@ class TipCalculator: ObservableObject {
         }
     }
 
-    private func isPalindromeNumber(_ value: Double) -> Bool {
-        let cents = Int(round(value * 100))
-        let str = String(cents)
-        return str == String(str.reversed())
-    }
-
     private func findNextPalindrome(from value: Double) -> Double {
         let startCents = Int(ceil(value * 100))
 
-        for cents in startCents...Int(value * 100) + 100000 {
-            let str = String(cents)
-            if str == String(str.reversed()) {
+        // Limit search to a reasonable range (max $200 more)
+        let maxSearchCents = startCents + 20000
+
+        for cents in startCents...maxSearchCents {
+            // Use more efficient palindrome check
+            if isPalindrome(cents) {
                 return Double(cents) / 100.0
             }
         }
 
         return value
+    }
+
+    private func isPalindrome(_ number: Int) -> Bool {
+        var num = number
+        var reversed = 0
+        let original = number
+
+        while num > 0 {
+            reversed = reversed * 10 + num % 10
+            num /= 10
+        }
+
+        return original == reversed
     }
 
     private static func loadPresets() -> [Int] {
