@@ -20,6 +20,16 @@ A modern iOS tip calculator app built with SwiftUI, inspired by the classic Tipu
   - Amount per person (when splitting)
   - Palindrome adjustment amount (when enabled)
   - Dollar rounding adjustment (when enabled)
+- **Customizable Settings**:
+  - **Appearance Mode**: Choose Light, Dark, or System (follows device setting)
+  - Settings persist across app launches
+- **Liquid Glass Design**: Modern glassmorphism UI with:
+  - Translucent glass-effect cards using `.ultraThinMaterial`
+  - Multi-layered gradient backgrounds (green, blue, purple)
+  - Luminous white gradient overlays
+  - Soft gradient borders for depth
+  - Dual shadow system (depth + glow)
+  - Smooth 20px corner radius throughout
 - **Modern iOS Design**: Clean interface using iOS 18+ design patterns
 - **Accessibility**: Full VoiceOver support and Dynamic Type compatibility
 
@@ -59,7 +69,9 @@ A modern iOS tip calculator app built with SwiftUI, inspired by the classic Tipu
 5. **Enable Dollar Rounding** (Optional): Choose to round the total up or down to the nearest whole dollar
    - Perfect for cash payments or even totals
 6. **Split the Bill**: Use the +/- buttons to adjust the number of people
-7. **View Results**: The app automatically calculates and displays:
+7. **Access Settings** (Optional): Tap the gear icon to customize:
+   - **Appearance**: Switch between Light, Dark, or System mode
+8. **View Results**: The app automatically calculates and displays:
    - Tip amount (including palindrome adjustment if enabled)
    - Total amount (with checkmark seal when it's a palindrome)
    - Amount per person
@@ -103,8 +115,10 @@ Tipulator/
 ├── Tipulator.xcodeproj/      # Xcode project file
 └── Tipulator/
     ├── TipulatorApp.swift     # App entry point
-    ├── ContentView.swift      # Main UI view
+    ├── ContentView.swift      # Main UI view with Liquid Glass design
     ├── TipCalculator.swift    # Business logic and calculations
+    ├── Settings.swift         # Settings model (appearance mode)
+    ├── SettingsView.swift     # Settings screen UI
     └── Assets.xcassets/       # App icons and assets
 ```
 
@@ -120,8 +134,9 @@ The app follows the MVVM (Model-View-ViewModel) pattern:
 
 - **SwiftUI**: Modern declarative UI framework
 - **Combine**: Reactive programming for state management
-- **UserDefaults**: Persistent storage for preset percentages
+- **UserDefaults**: Persistent storage for preset percentages and settings
 - **Swift**: Latest language features and best practices
+- **Glassmorphism Design**: Modern UI/UX with translucent materials and layered effects
 
 ## Customizing Preset Percentages
 

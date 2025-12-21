@@ -11,14 +11,18 @@
 		A1000003000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004000000000000001 /* ContentView.swift */; };
 		A1000005000000000000001 /* TipCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006000000000000001 /* TipCalculator.swift */; };
 		A1000007000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000008000000000000001 /* Assets.xcassets */; };
+		A1000009000000000000002 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000010000000000000002 /* Settings.swift */; };
+		A1000011000000000000002 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000012000000000000002 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1000009000000000000001 /* Tipulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tipulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000002000000000000001 /* TipulatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipulatorApp.swift; sourceTree = "<group>"; };
 		A1000004000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000006000000000000001 /* TipCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipCalculator.swift; sourceTree = "<group>"; };
 		A1000008000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1000009000000000000001 /* Tipulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tipulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000010000000000000002 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		A1000012000000000000002 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +49,9 @@
 			children = (
 				A1000002000000000000001 /* TipulatorApp.swift */,
 				A1000004000000000000001 /* ContentView.swift */,
+				A1000012000000000000002 /* SettingsView.swift */,
 				A1000006000000000000001 /* TipCalculator.swift */,
+				A1000010000000000000002 /* Settings.swift */,
 				A1000008000000000000001 /* Assets.xcassets */,
 			);
 			path = Tipulator;
@@ -87,7 +93,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					A100000E000000000000001 = {
 						CreatedOnToolsVersion = 16.0;
@@ -129,7 +135,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000003000000000000001 /* ContentView.swift in Sources */,
+				A1000011000000000000002 /* SettingsView.swift in Sources */,
 				A1000005000000000000001 /* TipCalculator.swift in Sources */,
+				A1000009000000000000002 /* Settings.swift in Sources */,
 				A1000001000000000000001 /* TipulatorApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -195,6 +203,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -251,6 +260,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

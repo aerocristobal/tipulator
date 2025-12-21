@@ -2,19 +2,29 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var calculator = TipCalculator()
+    @StateObject private var settings = Settings()
     @FocusState private var billAmountIsFocused: Bool
     @State private var showingPresetEditor = false
     @State private var editingPresetIndex: Int?
     @State private var editingPresetValue: String = ""
+    @State private var showingSettings = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemGroupedBackground)
-                    .ignoresSafeArea()
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.green.opacity(0.15),
+                        Color.blue.opacity(0.1),
+                        Color.purple.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 20) {
                         billAmountSection
                         tipPercentageSection
                         palindromeToggleSection
@@ -28,6 +38,15 @@ struct ContentView: View {
             .navigationTitle("Tipulator")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundStyle(.green)
+                    }
+                }
+
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") {
@@ -35,6 +54,7 @@ struct ContentView: View {
                     }
                 }
             }
+            .preferredColorScheme(settings.appearanceMode.colorScheme)
             .alert("Edit Preset Percentage", isPresented: $showingPresetEditor) {
                 TextField("Percentage (0-50)", text: $editingPresetValue)
                     .keyboardType(.numberPad)
@@ -53,6 +73,9 @@ struct ContentView: View {
                 }
             } message: {
                 Text("Enter a percentage between 0 and 50")
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView(settings: settings)
             }
         }
     }
@@ -75,9 +98,7 @@ struct ContentView: View {
                     .multilineTextAlignment(.leading)
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .glassCard()
         }
     }
 
@@ -110,9 +131,7 @@ struct ContentView: View {
                 .cornerRadius(12)
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .glassCard()
         }
     }
 
@@ -162,9 +181,7 @@ struct ContentView: View {
                     .tint(.green)
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .glassCard()
 
             if calculator.usePalindromeRounding && calculator.palindromeAdjustment > 0 {
                 HStack {
@@ -201,9 +218,7 @@ struct ContentView: View {
                 .tint(.green)
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .glassCard()
 
             if calculator.dollarRoundingMode != .none && calculator.dollarRoundingAdjustment != 0 {
                 HStack {
@@ -256,9 +271,7 @@ struct ContentView: View {
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .glassCard()
         }
     }
 
@@ -299,9 +312,7 @@ struct ContentView: View {
             .padding(.vertical, 8)
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 4)
+        .glassCard()
     }
 
     private func resultRow(title: String, amount: Double) -> some View {
@@ -322,6 +333,51 @@ struct ContentView: View {
         formatter.numberStyle = .currency
         formatter.locale = Locale.current
         return formatter
+    }
+}
+
+struct GlassCard: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.ultraThinMaterial)
+
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.2),
+                                    Color.white.opacity(0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.3),
+                                    Color.white.opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+            .shadow(color: Color.green.opacity(0.1), radius: 15, x: 0, y: 5)
+    }
+}
+
+extension View {
+    func glassCard() -> some View {
+        modifier(GlassCard())
     }
 }
 
