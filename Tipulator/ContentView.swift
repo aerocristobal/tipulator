@@ -4,10 +4,12 @@ struct ContentView: View {
     @StateObject private var calculator = TipCalculator()
     @StateObject private var settings = Settings()
     @FocusState private var billAmountIsFocused: Bool
+    @FocusState private var customPeopleIsFocused: Bool
     @State private var showingPresetEditor = false
     @State private var editingPresetIndex: Int?
     @State private var editingPresetValue: String = ""
     @State private var showingSettings = false
+    @State private var customPeopleText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -56,6 +58,7 @@ struct ContentView: View {
                     Spacer()
                     Button("Done") {
                         billAmountIsFocused = false
+                        customPeopleIsFocused = false
                     }
                 }
             }
@@ -202,10 +205,12 @@ struct ContentView: View {
                 }
                 .pickerStyle(.menu)
                 .tint(.green)
+                .disabled(calculator.usePalindromeRounding)
             }
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
+            .opacity(calculator.usePalindromeRounding ? 0.4 : 1.0)
         }
     }
 
@@ -215,36 +220,55 @@ struct ContentView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 12) {
-                Button(action: {
-                    if calculator.numberOfPeople > 1 {
-                        calculator.numberOfPeople -= 1
+            HStack(spacing: 8) {
+                // Preset buttons for 1, 2, and 4
+                ForEach([1, 2, 4], id: \.self) { count in
+                    Button(action: {
+                        calculator.numberOfPeople = count
+                        customPeopleText = ""
+                        billAmountIsFocused = false
+                        customPeopleIsFocused = false
+                    }) {
+                        Text("\(count)")
+                            .font(.system(size: 16, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(calculator.numberOfPeople == count && customPeopleText.isEmpty ? Color.green : Color(.systemBackground))
+                            .foregroundColor(calculator.numberOfPeople == count && customPeopleText.isEmpty ? .white : .primary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.green.opacity(0.3), lineWidth: calculator.numberOfPeople == count && customPeopleText.isEmpty ? 0 : 1)
+                            )
                     }
-                    billAmountIsFocused = false
-                }) {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(calculator.numberOfPeople > 1 ? Color.green : Color.gray.opacity(0.3))
                 }
-                .disabled(calculator.numberOfPeople <= 1)
 
-                VStack(spacing: 2) {
-                    Text("\(calculator.numberOfPeople)")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                    Text(calculator.numberOfPeople == 1 ? "Person" : "People")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
+                // Custom text field
+                TextField("___", text: $customPeopleText)
+                    .font(.system(size: 16, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.numberPad)
+                    .focused($customPeopleIsFocused)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(!customPeopleText.isEmpty ? Color.green : Color(.systemBackground))
+                    .foregroundColor(!customPeopleText.isEmpty ? .white : .primary)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.green.opacity(0.3), lineWidth: !customPeopleText.isEmpty ? 0 : 1)
+                    )
+                    .onChange(of: customPeopleText) { oldValue, newValue in
+                        // Limit to 3 digits
+                        let filtered = newValue.filter { $0.isNumber }
+                        let limited = String(filtered.prefix(3))
+                        customPeopleText = limited
 
-                Button(action: {
-                    calculator.numberOfPeople += 1
-                    billAmountIsFocused = false
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(Color.green)
-                }
+                        // Update calculator
+                        if let value = Int(limited), value > 0 {
+                            calculator.numberOfPeople = value
+                        }
+                    }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)

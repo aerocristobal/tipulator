@@ -51,6 +51,10 @@ class TipCalculator: ObservableObject {
 
     @Published var usePalindromeRounding: Bool = false {
         didSet {
+            // Reset dollar rounding when palindrome is enabled
+            if usePalindromeRounding {
+                dollarRoundingMode = .none
+            }
             calculateTip()
         }
     }
@@ -103,7 +107,8 @@ class TipCalculator: ObservableObject {
             isPalindrome = false
         }
 
-        if dollarRoundingMode != .none && bill > 0 {
+        // Only apply dollar rounding if palindrome rounding is not enabled
+        if !usePalindromeRounding && dollarRoundingMode != .none && bill > 0 {
             let roundedTotal = applyDollarRounding(to: calculatedTotal, mode: dollarRoundingMode)
             totalDollarRoundingAdjustment = roundedTotal - calculatedTotal
             calculatedTip += totalDollarRoundingAdjustment
