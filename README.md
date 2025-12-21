@@ -10,12 +10,16 @@ A modern iOS tip calculator app built with SwiftUI, inspired by the classic Tipu
   - Your custom presets are saved automatically
 - **Custom Tip Percentage**: Slider control for any tip amount from 0% to 50%
 - **Palindrome Rounding**: Unique feature that rounds up the tip to make the total a palindrome number (e.g., $57.75, $63.36, $120.21)
+- **Dollar Rounding**: Round the total up or down to the nearest whole dollar
+  - Options: None, Round Up, Round Down
+  - Perfect for cash payments
 - **Bill Splitting**: Split the bill between multiple people with easy increment/decrement controls
 - **Real-time Calculations**: Instant updates showing:
   - Tip amount
   - Total bill amount
   - Amount per person (when splitting)
   - Palindrome adjustment amount (when enabled)
+  - Dollar rounding adjustment (when enabled)
 - **Modern iOS Design**: Clean interface using iOS 18+ design patterns
 - **Accessibility**: Full VoiceOver support and Dynamic Type compatibility
 
@@ -52,8 +56,10 @@ A modern iOS tip calculator app built with SwiftUI, inspired by the classic Tipu
    - Your custom presets are saved automatically
    - Perfect for your favorite tipping percentages
 4. **Enable Palindrome Rounding** (Optional): Toggle on to automatically adjust the tip so the total becomes a palindrome number
-5. **Split the Bill**: Use the +/- buttons to adjust the number of people
-6. **View Results**: The app automatically calculates and displays:
+5. **Enable Dollar Rounding** (Optional): Choose to round the total up or down to the nearest whole dollar
+   - Perfect for cash payments or even totals
+6. **Split the Bill**: Use the +/- buttons to adjust the number of people
+7. **View Results**: The app automatically calculates and displays:
    - Tip amount (including palindrome adjustment if enabled)
    - Total amount (with checkmark seal when it's a palindrome)
    - Amount per person
@@ -68,6 +74,27 @@ A palindrome number reads the same forwards and backwards. When palindrome round
 - Bill: $45.67, 18% tip = $53.89 → Rounds to $54.45 (5445 cents)
 
 The app displays how much extra was added to achieve the palindrome total.
+
+### What is Dollar Rounding?
+
+Dollar rounding adjusts the tip so the final total is a whole dollar amount. This is especially useful for cash payments or when you prefer even numbers.
+
+**Options:**
+- **None**: No rounding applied (default)
+- **Round Up**: Rounds total up to next whole dollar (e.g., $57.50 → $58.00)
+- **Round Down**: Rounds total down to previous whole dollar (e.g., $57.50 → $57.00)
+
+**Examples:**
+- Bill: $50.00, 15% tip = $57.50
+  - Round Up → $58.00 (tip adjusted from $7.50 to $8.00)
+  - Round Down → $57.00 (tip adjusted from $7.50 to $7.00)
+- Bill: $45.67, 18% tip = $53.89
+  - Round Up → $54.00 (tip adjusted +$0.11)
+  - Round Down → $53.00 (tip adjusted -$0.89)
+
+The app shows exactly how much the tip was adjusted for rounding.
+
+**Note:** Palindrome rounding and dollar rounding can be used together. The app applies palindrome rounding first, then dollar rounding if both are enabled.
 
 ## Project Structure
 

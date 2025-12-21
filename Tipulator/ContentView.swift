@@ -18,6 +18,7 @@ struct ContentView: View {
                         billAmountSection
                         tipPercentageSection
                         palindromeToggleSection
+                        dollarRoundingSection
                         numberOfPeopleSection
                         resultsSection
                     }
@@ -170,6 +171,45 @@ struct ContentView: View {
                     Image(systemName: "arrow.triangle.2.circlepath")
                         .foregroundStyle(.green)
                     Text("Tip adjusted by \(currencyFormatter.string(from: NSNumber(value: calculator.palindromeAdjustment)) ?? "$0.00") for palindrome total")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private var dollarRoundingSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Dollar Rounding")
+                        .font(.headline)
+                    Text("Round total to nearest dollar")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Picker("", selection: $calculator.dollarRoundingMode) {
+                    ForEach(TipCalculator.DollarRoundingMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(.green)
+            }
+            .padding()
+            .background(Color(.systemBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+
+            if calculator.dollarRoundingMode != .none && calculator.dollarRoundingAdjustment != 0 {
+                HStack {
+                    Image(systemName: "dollarsign.circle")
+                        .foregroundStyle(.green)
+                    Text("Tip adjusted by \(currencyFormatter.string(from: NSNumber(value: calculator.dollarRoundingAdjustment)) ?? "$0.00") to round total to \(currencyFormatter.string(from: NSNumber(value: calculator.totalAmount)) ?? "$0.00")")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
