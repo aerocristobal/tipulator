@@ -11,32 +11,37 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.green.opacity(0.15),
-                        Color.blue.opacity(0.1),
-                        Color.purple.opacity(0.05)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+            GeometryReader { geometry in
+                ZStack {
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.green.opacity(0.15),
+                            Color.blue.opacity(0.1),
+                            Color.purple.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: geometry.size.height * 0.015) {
                         billAmountSection
                         tipPercentageSection
-                        palindromeToggleSection
-                        dollarRoundingSection
+
+                        HStack(spacing: geometry.size.width * 0.03) {
+                            palindromeToggleSection
+                            dollarRoundingSection
+                        }
+
                         numberOfPeopleSection
                         resultsSection
                     }
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("Tipulator")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
@@ -81,44 +86,45 @@ struct ContentView: View {
     }
 
     private var billAmountSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("Bill Amount")
-                .font(.headline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             HStack {
                 Text("$")
-                    .font(.system(size: 48, weight: .semibold, design: .rounded))
+                    .font(.system(size: 36, weight: .semibold, design: .rounded))
                     .foregroundStyle(.primary)
 
                 TextField("0.00", text: $calculator.billAmountText)
-                    .font(.system(size: 48, weight: .semibold, design: .rounded))
+                    .font(.system(size: 36, weight: .semibold, design: .rounded))
                     .keyboardType(.decimalPad)
                     .focused($billAmountIsFocused)
                     .multilineTextAlignment(.leading)
             }
-            .padding()
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
             .glassCard()
         }
     }
 
     private var tipPercentageSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("Tip Percentage")
-                .font(.headline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            VStack(spacing: 16) {
-                HStack(spacing: 12) {
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
                     ForEach(Array(calculator.presetPercentages.enumerated()), id: \.offset) { index, percentage in
                         tipPercentageButton(percentage, index: index)
                     }
                 }
 
-                VStack(spacing: 8) {
+                VStack(spacing: 4) {
                     HStack {
                         Text("Custom: \(Int(calculator.customTipPercentage))%")
-                            .font(.subheadline)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         Spacer()
                     }
@@ -126,11 +132,13 @@ struct ContentView: View {
                     Slider(value: $calculator.customTipPercentage, in: 0...50, step: 1)
                         .tint(.green)
                 }
-                .padding()
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
                 .background(Color(.systemBackground))
-                .cornerRadius(12)
+                .cornerRadius(8)
             }
-            .padding()
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
             .glassCard()
         }
     }
@@ -141,14 +149,14 @@ struct ContentView: View {
             billAmountIsFocused = false
         }) {
             Text("\(percentage)%")
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, 12)
                 .background(calculator.selectedTipPercentage == percentage ? Color.green : Color(.systemBackground))
                 .foregroundColor(calculator.selectedTipPercentage == percentage ? .white : .primary)
-                .cornerRadius(12)
+                .cornerRadius(8)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.green.opacity(0.3), lineWidth: calculator.selectedTipPercentage == percentage ? 0 : 1)
                 )
         }
@@ -164,50 +172,28 @@ struct ContentView: View {
     }
 
     private var palindromeToggleSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Palindrome Rounding")
-                        .font(.headline)
-                    Text("Round total to nearest palindrome")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
+        VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Palindrome")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 Toggle("", isOn: $calculator.usePalindromeRounding)
                     .labelsHidden()
                     .tint(.green)
             }
-            .padding()
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
-
-            if calculator.usePalindromeRounding && calculator.palindromeAdjustment > 0 {
-                HStack {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                        .foregroundStyle(.green)
-                    Text("Tip adjusted by \(currencyFormatter.string(from: NSNumber(value: calculator.palindromeAdjustment)) ?? "$0.00") for palindrome total")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 4)
-            }
         }
     }
 
     private var dollarRoundingSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Dollar Rounding")
-                        .font(.headline)
-                    Text("Round total to nearest dollar")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
+        VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Dollar Rounding")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 Picker("", selection: $calculator.dollarRoundingMode) {
                     ForEach(TipCalculator.DollarRoundingMode.allCases, id: \.self) { mode in
@@ -217,29 +203,19 @@ struct ContentView: View {
                 .pickerStyle(.menu)
                 .tint(.green)
             }
-            .padding()
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
-
-            if calculator.dollarRoundingMode != .none && calculator.dollarRoundingAdjustment != 0 {
-                HStack {
-                    Image(systemName: "dollarsign.circle")
-                        .foregroundStyle(.green)
-                    Text("Tip adjusted by \(currencyFormatter.string(from: NSNumber(value: calculator.dollarRoundingAdjustment)) ?? "$0.00") to round total to \(currencyFormatter.string(from: NSNumber(value: calculator.totalAmount)) ?? "$0.00")")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 4)
-            }
         }
     }
 
     private var numberOfPeopleSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("Split Between")
-                .font(.headline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button(action: {
                     if calculator.numberOfPeople > 1 {
                         calculator.numberOfPeople -= 1
@@ -247,16 +223,16 @@ struct ContentView: View {
                     billAmountIsFocused = false
                 }) {
                     Image(systemName: "minus.circle.fill")
-                        .font(.system(size: 36))
+                        .font(.system(size: 28))
                         .foregroundStyle(calculator.numberOfPeople > 1 ? Color.green : Color.gray.opacity(0.3))
                 }
                 .disabled(calculator.numberOfPeople <= 1)
 
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Text("\(calculator.numberOfPeople)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
                     Text(calculator.numberOfPeople == 1 ? "Person" : "People")
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -266,65 +242,67 @@ struct ContentView: View {
                     billAmountIsFocused = false
                 }) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 36))
+                        .font(.system(size: 28))
                         .foregroundStyle(Color.green)
                 }
             }
-            .padding()
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
             .glassCard()
         }
     }
 
     private var resultsSection: some View {
-        VStack(spacing: 16) {
-            resultRow(title: "Tip Amount", amount: calculator.tipAmount)
+        VStack(spacing: 8) {
+            resultRow(title: "Tip", amount: calculator.tipAmount)
 
             HStack {
                 Text("Total")
-                    .font(.headline)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
 
                 if calculator.isPalindrome {
                     Image(systemName: "checkmark.seal.fill")
                         .foregroundStyle(.green)
-                        .font(.caption)
+                        .font(.caption2)
                 }
 
                 Spacer()
 
                 Text(currencyFormatter.string(from: NSNumber(value: calculator.totalAmount)) ?? "$0.00")
-                    .font(.system(size: 24, weight: .semibold, design: .rounded))
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
             }
 
             Divider()
-                .padding(.vertical, 8)
+                .padding(.vertical, 2)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 Text("Per Person")
-                    .font(.headline)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
 
                 Text(currencyFormatter.string(from: NSNumber(value: calculator.amountPerPerson)) ?? "$0.00")
-                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundStyle(.green)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
         }
-        .padding()
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
         .glassCard()
     }
 
     private func resultRow(title: String, amount: Double) -> some View {
         HStack {
             Text(title)
-                .font(.headline)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             Spacer()
 
             Text(currencyFormatter.string(from: NSNumber(value: amount)) ?? "$0.00")
-                .font(.system(size: 24, weight: .semibold, design: .rounded))
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
         }
     }
 
