@@ -60,6 +60,8 @@ struct ContentView: View {
                         Image(systemName: "gearshape.fill")
                             .foregroundStyle(.green)
                     }
+                    .accessibilityLabel("Settings")
+                    .accessibilityHint("Open app settings")
                 }
 
                 ToolbarItemGroup(placement: .keyboard) {
@@ -68,6 +70,7 @@ struct ContentView: View {
                         billAmountIsFocused = false
                         customPeopleIsFocused = false
                     }
+                    .accessibilityLabel("Done editing")
                 }
             }
             .preferredColorScheme(settings.appearanceMode.colorScheme)
@@ -106,12 +109,16 @@ struct ContentView: View {
                 Text("$")
                     .font(.system(size: 36, weight: .semibold, design: .rounded))
                     .foregroundStyle(.primary)
+                    .accessibilityHidden(true)
 
                 TextField("0.00", text: $calculator.billAmountText)
                     .font(.system(size: 36, weight: .semibold, design: .rounded))
                     .keyboardType(.decimalPad)
                     .focused($billAmountIsFocused)
                     .multilineTextAlignment(.leading)
+                    .accessibilityLabel("Bill amount in dollars")
+                    .accessibilityHint("Enter the total bill amount")
+                    .accessibilityValue(calculator.billAmountText.isEmpty ? "Empty" : "$\(calculator.billAmountText)")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
@@ -142,6 +149,9 @@ struct ContentView: View {
 
                     Slider(value: $calculator.customTipPercentage, in: 0...50, step: 1)
                         .tint(.green)
+                        .accessibilityLabel("Custom tip percentage")
+                        .accessibilityValue("\(Int(calculator.customTipPercentage)) percent")
+                        .accessibilityHint("Adjust to set a custom tip percentage from 0 to 50 percent")
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 6)
@@ -171,6 +181,9 @@ struct ContentView: View {
                         .stroke(Color.green.opacity(0.3), lineWidth: calculator.selectedTipPercentage == percentage ? 0 : 1)
                 )
         }
+        .accessibilityLabel("Tip \(percentage) percent")
+        .accessibilityHint("Double tap to select \(percentage) percent tip. Long press to edit this preset value.")
+        .accessibilityAddTraits(calculator.selectedTipPercentage == percentage ? [.isButton, .isSelected] : .isButton)
         .contextMenu {
             Button(action: {
                 editingPresetIndex = index
@@ -192,6 +205,9 @@ struct ContentView: View {
                 Toggle("", isOn: $calculator.usePalindromeRounding)
                     .labelsHidden()
                     .tint(.green)
+                    .accessibilityLabel("Palindrome rounding")
+                    .accessibilityHint("When enabled, rounds the total to the nearest palindrome number")
+                    .accessibilityValue(calculator.usePalindromeRounding ? "On" : "Off")
             }
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -214,6 +230,9 @@ struct ContentView: View {
                 .pickerStyle(.menu)
                 .tint(.green)
                 .disabled(calculator.usePalindromeRounding)
+                .accessibilityLabel("Dollar rounding mode")
+                .accessibilityHint(calculator.usePalindromeRounding ? "Disabled while palindrome rounding is on" : "Choose to round total up, down, or no rounding")
+                .accessibilityValue(calculator.dollarRoundingMode.rawValue)
             }
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -249,6 +268,8 @@ struct ContentView: View {
                                     .stroke(Color.green.opacity(0.3), lineWidth: calculator.numberOfPeople == count && customPeopleText.isEmpty ? 0 : 1)
                             )
                     }
+                    .accessibilityLabel("Split bill between \(count) \(count == 1 ? "person" : "people")")
+                    .accessibilityAddTraits(calculator.numberOfPeople == count && customPeopleText.isEmpty ? [.isButton, .isSelected] : .isButton)
                 }
 
                 // Custom text field
@@ -266,6 +287,9 @@ struct ContentView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.green.opacity(0.3), lineWidth: !customPeopleText.isEmpty ? 0 : 1)
                     )
+                    .accessibilityLabel("Custom number of people")
+                    .accessibilityHint("Enter a custom number from 1 to 999")
+                    .accessibilityValue(customPeopleText.isEmpty ? "Empty" : "\(customPeopleText) people")
                     .onChange(of: customPeopleText) { oldValue, newValue in
                         // Limit to 3 digits
                         let filtered = newValue.filter { $0.isNumber }
@@ -297,6 +321,7 @@ struct ContentView: View {
                     Image(systemName: "checkmark.seal.fill")
                         .foregroundStyle(.green)
                         .font(.caption2)
+                        .accessibilityLabel("Palindrome total")
                 }
 
                 Spacer()
@@ -304,9 +329,13 @@ struct ContentView: View {
                 Text(currencyFormatter.string(from: NSNumber(value: calculator.totalAmount)) ?? "$0.00")
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Total amount")
+            .accessibilityValue("\(currencyFormatter.string(from: NSNumber(value: calculator.totalAmount)) ?? "$0.00")\(calculator.isPalindrome ? ", palindrome" : "")")
 
             Divider()
                 .padding(.vertical, 2)
+                .accessibilityHidden(true)
 
             VStack(spacing: 4) {
                 Text("Per Person")
@@ -319,10 +348,15 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 4)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Amount per person")
+            .accessibilityValue(currencyFormatter.string(from: NSNumber(value: calculator.amountPerPerson)) ?? "$0.00")
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .glassCard()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Results")
     }
 
     private func resultRow(title: String, amount: Double) -> some View {
@@ -336,6 +370,9 @@ struct ContentView: View {
             Text(currencyFormatter.string(from: NSNumber(value: amount)) ?? "$0.00")
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue(currencyFormatter.string(from: NSNumber(value: amount)) ?? "$0.00")
     }
 }
 
