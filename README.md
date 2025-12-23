@@ -32,6 +32,12 @@ A modern iOS tip calculator app built with SwiftUI, inspired by the classic Tipu
   - Smooth 20px corner radius throughout
 - **Modern iOS Design**: Clean interface using iOS 18+ design patterns
 - **Accessibility**: Full VoiceOver support and Dynamic Type compatibility
+- **Payment Request Sharing**: Request payments from friends when splitting bills
+  - Deep links to installed payment apps (Venmo, Cash App, Zelle, PayPal)
+  - Automatic detection of installed payment apps
+  - ShareLink integration for messaging payment requests
+  - Pre-filled payment amounts and bill details
+  - Appears automatically when splitting bill between multiple people
 
 ## Requirements
 
@@ -75,6 +81,10 @@ A modern iOS tip calculator app built with SwiftUI, inspired by the classic Tipu
    - Tip amount (including palindrome adjustment if enabled)
    - Total amount (with checkmark seal when it's a palindrome)
    - Amount per person
+9. **Request Payment** (When Splitting): When splitting between multiple people:
+   - Tap "Request Payment" button to open payment options
+   - Choose an installed payment app (Venmo, Cash App, Zelle, PayPal) to open it with pre-filled amount
+   - Or use "Share via Messages" to send a payment request with bill details
 
 ### What is Palindrome Rounding?
 
@@ -119,6 +129,9 @@ Tipulator/
     ├── TipCalculator.swift    # Business logic and calculations
     ├── Settings.swift         # Settings model (appearance mode)
     ├── SettingsView.swift     # Settings screen UI
+    ├── PaymentService.swift   # Payment app deep link generation
+    ├── PaymentOptionsView.swift # Payment request modal UI
+    ├── Info.plist             # App configuration (URL schemes)
     └── Assets.xcassets/       # App icons and assets
 ```
 
