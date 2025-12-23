@@ -19,6 +19,44 @@ struct ContentView: View {
         return formatter
     }()
 
+    // Shareable bill summary text
+    private var shareableText: String {
+        let billAmountStr = currencyFormatter.string(from: NSNumber(value: calculator.currentBillAmount)) ?? "$0.00"
+        let tipAmountStr = currencyFormatter.string(from: NSNumber(value: calculator.tipAmount)) ?? "$0.00"
+        let totalAmountStr = currencyFormatter.string(from: NSNumber(value: calculator.totalAmount)) ?? "$0.00"
+        let perPersonStr = currencyFormatter.string(from: NSNumber(value: calculator.amountPerPerson)) ?? "$0.00"
+
+        var message = "💰 Bill Summary\n\n"
+        message += "Bill: \(billAmountStr)\n"
+        message += "Tip (\(Int(calculator.currentTipPercentage))%): \(tipAmountStr)\n"
+
+        if calculator.usePalindromeRounding && calculator.palindromeAdjustment > 0 {
+            let adjustmentStr = currencyFormatter.string(from: NSNumber(value: calculator.palindromeAdjustment)) ?? "$0.00"
+            message += "Palindrome adjustment: +\(adjustmentStr)\n"
+        }
+
+        if !calculator.usePalindromeRounding && calculator.dollarRoundingMode != .none && calculator.dollarRoundingAdjustment != 0 {
+            let adjustmentStr = currencyFormatter.string(from: NSNumber(value: abs(calculator.dollarRoundingAdjustment))) ?? "$0.00"
+            let sign = calculator.dollarRoundingAdjustment > 0 ? "+" : "-"
+            message += "Dollar rounding: \(sign)\(adjustmentStr)\n"
+        }
+
+        message += "Total: \(totalAmountStr)"
+
+        if calculator.isPalindrome {
+            message += " 🔁"
+        }
+
+        if calculator.numberOfPeople > 1 {
+            message += "\n\n👥 Split \(calculator.numberOfPeople) ways\n"
+            message += "Per person: \(perPersonStr)"
+        }
+
+        message += "\n\n📱 Calculated with Tipulator"
+
+        return message
+    }
+
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -351,6 +389,29 @@ struct ContentView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Amount per person")
             .accessibilityValue(currencyFormatter.string(from: NSNumber(value: calculator.amountPerPerson)) ?? "$0.00")
+
+            // Share button
+            if calculator.currentBillAmount > 0 {
+                Divider()
+                    .padding(.vertical, 4)
+                    .accessibilityHidden(true)
+
+                ShareLink(item: shareableText) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("Share Bill Summary")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundStyle(.green)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.green.opacity(0.1))
+                    .cornerRadius(8)
+                }
+                .accessibilityLabel("Share bill summary")
+                .accessibilityHint("Opens share sheet to send bill details via Messages, Mail, AirDrop, or other apps")
+            }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)

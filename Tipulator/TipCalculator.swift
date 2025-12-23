@@ -74,6 +74,8 @@ class TipCalculator: ObservableObject {
     @Published private(set) var palindromeAdjustment: Double = 0.0
     @Published private(set) var dollarRoundingAdjustment: Double = 0.0
     @Published private(set) var isPalindrome: Bool = false
+    @Published private(set) var currentBillAmount: Double = 0.0
+    @Published private(set) var currentTipPercentage: Double = 0.0
 
     enum DollarRoundingMode: String, CaseIterable {
         case none = "None"
@@ -97,6 +99,11 @@ class TipCalculator: ObservableObject {
 
     private func calculateTip() {
         let bill = billAmount
+        let tipPerc = effectiveTipPercentage
+
+        // Update published values for external access
+        currentBillAmount = bill
+        currentTipPercentage = tipPerc
 
         // Early return if bill is zero
         guard bill > 0 else {
@@ -109,7 +116,7 @@ class TipCalculator: ObservableObject {
             return
         }
 
-        let tipPercentage = effectiveTipPercentage / 100.0
+        let tipPercentage = tipPerc / 100.0
 
         var calculatedTip = bill * tipPercentage
         var calculatedTotal = bill + calculatedTip
