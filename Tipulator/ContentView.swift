@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var editingPresetValue: String = ""
     @State private var showingSettings = false
     @State private var customPeopleText: String = ""
+    @State private var showingPaymentOptions = false
 
     // Cached currency formatter for performance
     private let currencyFormatter: NumberFormatter = {
@@ -55,6 +56,16 @@ struct ContentView: View {
         message += "\n\n📱 Calculated with Tipulator"
 
         return message
+    }
+
+    // Payment request message for SMS/sharing
+    private var paymentRequestText: String {
+        PaymentService.generateSMSPaymentRequest(
+            amount: calculator.amountPerPerson,
+            tipPercent: Int(calculator.currentTipPercentage),
+            totalBill: calculator.totalAmount,
+            numberOfPeople: calculator.numberOfPeople
+        )
     }
 
     var body: some View {
@@ -133,6 +144,12 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView(settings: settings)
+            }
+            .sheet(isPresented: $showingPaymentOptions) {
+                PaymentOptionsView(
+                    amount: calculator.amountPerPerson,
+                    paymentRequestText: paymentRequestText
+                )
             }
         }
     }
@@ -411,6 +428,27 @@ struct ContentView: View {
                 }
                 .accessibilityLabel("Share bill summary")
                 .accessibilityHint("Opens share sheet to send bill details via Messages, Mail, AirDrop, or other apps")
+
+                // Payment Request button (only show when splitting with others)
+                if calculator.numberOfPeople > 1 {
+                    Button(action: {
+                        showingPaymentOptions = true
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "dollarsign.circle.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("Request Payment")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color.green)
+                        .cornerRadius(8)
+                    }
+                    .accessibilityLabel("Request payment from others")
+                    .accessibilityHint("Opens payment options to request \(currencyFormatter.string(from: NSNumber(value: calculator.amountPerPerson)) ?? "$0.00") per person via Venmo, Cash App, or other apps")
+                }
             }
         }
         .padding(.horizontal, 10)
